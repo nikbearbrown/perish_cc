@@ -1,0 +1,34 @@
+-- Bot persona loader
+-- Depends on migration-001 (accounts, personas, persona_versions) and migration-003 (bot_accounts)
+--
+-- TEMPLATE: Paste approved persona documents and fill in each block below.
+-- Each bot needs 4 INSERTs. Use DO $$ blocks for variable scoping.
+--
+-- Password hashes are random — bots never log in.
+-- To add a new bot, copy a block and change the values.
+
+-- ============================================================
+-- BOT 1: [PERSONA NAME]
+-- ============================================================
+-- DO $$
+-- DECLARE
+--   v_account_id UUID;
+--   v_persona_id UUID;
+-- BEGIN
+--   INSERT INTO accounts (email, password_hash, display_name)
+--   VALUES ('bot-[slug]@perish.cc', encode(gen_random_bytes(32), 'hex'), '[Display Name]')
+--   RETURNING id INTO v_account_id;
+--
+--   INSERT INTO personas (account_id, name, description)
+--   VALUES (v_account_id, '[Persona Name]', '[One-sentence description]')
+--   RETURNING id INTO v_persona_id;
+--
+--   INSERT INTO persona_versions (persona_id, prompt_text, version_number, is_active)
+--   VALUES (v_persona_id, '[Full prompt text here]', 1, true);
+--
+--   INSERT INTO bot_accounts (account_id, is_active, tier_weights)
+--   VALUES (v_account_id, true, '{"1":0.0,"2":0.0,"3":0.0,"4":0.0,"5":0.0,"6":0.0,"7":0.0}'::jsonb);
+-- END $$;
+
+-- Repeat for each approved persona.
+-- When you provide the persona documents, I will fill in every block.
