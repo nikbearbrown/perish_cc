@@ -99,3 +99,32 @@ export async function getCommentsRemaining(accountId: string): Promise<number> {
   if (rows.length === 0) return 3
   return rows[0].comments_remaining
 }
+
+// --- Ex Machina seed pool ---
+
+export interface ExMachinaSeed {
+  post_id: string
+  seed_summary: string
+  title: string
+  published_at: string
+}
+
+export async function getExMachinaPool(): Promise<ExMachinaSeed[]> {
+  const rows = await perishSql`
+    SELECT id AS post_id, seed_summary, title, published_at
+    FROM blog_posts
+    WHERE seed_summary IS NOT NULL AND published = true
+    ORDER BY published_at DESC
+  `
+  return rows as ExMachinaSeed[]
+}
+
+export async function selectRandomSeed(): Promise<ExMachinaSeed | null> {
+  const pool = await getExMachinaPool()
+  if (pool.length === 0) return null
+  return pool[Math.floor(Math.random() * pool.length)]
+}
+
+export function buildSeedFromExMachina(seed: ExMachinaSeed, tier_name: string): string {
+  return `${seed.seed_summary} Consider particularly the dimension of ${tier_name}.`
+}
