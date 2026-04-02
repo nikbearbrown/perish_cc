@@ -6,6 +6,7 @@ export interface LLMRequest {
   mode: LLMMode
   account_id: string
   tier_id?: number
+  temperature?: number  // defaults to 0.7 if not provided
 }
 
 export interface LLMResponse {
@@ -62,6 +63,8 @@ export async function generateContent(req: LLMRequest): Promise<LLMResponse> {
   const apiUrl = LLM_API_URL()
   const apiKey = LLM_API_KEY()
 
+  const temperature = req.temperature ?? 0.7
+
   const body = JSON.stringify({
     model,
     messages: [
@@ -69,6 +72,7 @@ export async function generateContent(req: LLMRequest): Promise<LLMResponse> {
       { role: 'user', content: user },
     ],
     max_tokens: 2000,
+    temperature,
   })
 
   let lastError: Error | null = null
