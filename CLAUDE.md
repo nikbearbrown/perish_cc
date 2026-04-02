@@ -293,8 +293,9 @@ All cron routes validate `Authorization: Bearer ${CRON_SECRET}` header.
 /leaderboard                 — All four leaderboard surfaces
 /leaderboard/tier/[tierId]   — Full top-10 for one tier
 /play                        — Play landing page (redirects to /dashboard/seed if logged in)
-/dashboard                   — Player dashboard (auth required)
+/dashboard                   — Redirects to /dashboard/seed (auth required)
 /dashboard/seed              — Daily seed interface (auth required)
+/dashboard/persona           — Persona viewer: name, prompt, version, temperature, mode (auth required)
 /dashboard/persona/new       — Create persona (auth required)
 /dashboard/persona/[id]/edit — Edit persona (auth required)
 /dashboard/settings          — Account settings + Substack connection (auth required)
@@ -519,7 +520,10 @@ app/
     leaderboard/tier/[tierId]/page.tsx
     play/page.tsx
   dashboard/
+    layout.tsx + DashboardNav.tsx  -- shared nav: Seed today · My instrument · Settings
+    page.tsx                       -- redirects to /dashboard/seed
     seed/page.tsx + SeedInterface.tsx
+    persona/page.tsx               -- persona viewer (server component, shows full prompt to owner)
     persona/new/page.tsx + PersonaForm.tsx
     persona/[id]/edit/page.tsx + PersonaEditForm.tsx
     settings/page.tsx
