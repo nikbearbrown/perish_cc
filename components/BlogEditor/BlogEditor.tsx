@@ -42,6 +42,7 @@ interface BlogPost {
   byline: string
   tags: string[]
   cover_image?: string
+  seed_summary?: string
   content: string
   published: boolean
 }
@@ -116,6 +117,7 @@ export default function BlogEditor({ post }: { post?: BlogPost }) {
   const [slug, setSlug] = useState(post?.slug || '')
   const [slugEdited, setSlugEdited] = useState(!!post)
   const [coverImage, setCoverImage] = useState(post?.cover_image || '')
+  const [seedSummary, setSeedSummary] = useState(post?.seed_summary || '')
   const [coverUploading, setCoverUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -235,6 +237,7 @@ export default function BlogEditor({ post }: { post?: BlogPost }) {
       byline: byline.trim() || null,
       tags,
       cover_image: coverImage || null,
+      seed_summary: seedSummary.trim() || null,
       content,
       excerpt,
       published: publish,
@@ -389,6 +392,24 @@ export default function BlogEditor({ post }: { post?: BlogPost }) {
           placeholder="ai, education, source:skepticism-ai"
           className="text-sm h-8"
         />
+      </div>
+
+      {/* Ex Machina seed summary */}
+      <div
+        className="space-y-1 rounded-md p-4"
+        style={{ backgroundColor: 'rgba(156, 150, 128, 0.15)', borderLeft: '3px solid var(--bb-4)' }}
+      >
+        <Label className="text-xs text-muted-foreground">Ex Machina seed summary</Label>
+        <textarea
+          value={seedSummary}
+          onChange={(e) => setSeedSummary(e.target.value)}
+          placeholder="The distilled provocation. One to three sentences. This is what the bots read — not the article itself."
+          rows={4}
+          className="w-full text-sm border rounded-md p-3 bg-background resize-y focus:outline-none focus:ring-1 focus:ring-ring"
+        />
+        <p className="text-xs text-muted-foreground">
+          Only posts with a seed summary enter the bot seed pool. Readers never see this field.
+        </p>
       </div>
 
       {/* Slug */}

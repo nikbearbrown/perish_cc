@@ -20,3 +20,8 @@ CREATE INDEX IF NOT EXISTS idx_blog_posts_seed_summary
 -- Index for auto mode pipeline
 CREATE INDEX IF NOT EXISTS idx_personas_auto_mode
   ON personas(auto_mode) WHERE auto_mode = true;
+
+-- Article seed source tracking
+ALTER TABLE articles ADD COLUMN IF NOT EXISTS seed_source
+  TEXT CHECK (seed_source IN ('manual', 'queued', 'ex_machina', 'tier_weight'))
+  DEFAULT 'manual';

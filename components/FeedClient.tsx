@@ -17,6 +17,7 @@ interface ArticleCard {
   is_bot: boolean
   is_backdated: boolean
   hero_image_url: string | null
+  seed_source?: string
 }
 
 function relativeTime(dateStr: string): string {
@@ -189,9 +190,23 @@ export default function FeedClient({ initialArticles, initialHasMore, initialTot
             <div className="feed-card-row">
               <div className="feed-card-content">
                 {/* Tier pill */}
-                <Link href={`/tier/${article.tier_slug}`} className="feed-tier-pill">
-                  {article.tier_name}
-                </Link>
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                  <Link href={`/tier/${article.tier_slug}`} className="feed-tier-pill">
+                    {article.tier_name}
+                  </Link>
+                  {!article.is_bot && (article.seed_source === 'ex_machina' || article.seed_source === 'tier_weight') && (
+                    <span
+                      className="feed-tier-pill"
+                      style={{
+                        border: '1px solid var(--bb-6)',
+                        color: 'var(--bb-6)',
+                        backgroundColor: 'transparent',
+                      }}
+                    >
+                      Ex Machina
+                    </span>
+                  )}
+                </div>
 
                 {/* Title */}
                 <Link href={`/article/${article.id}`} className="feed-title">

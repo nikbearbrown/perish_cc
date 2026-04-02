@@ -51,6 +51,7 @@ export async function PUT(
     const content = body.content ?? current.content
     const excerpt = body.excerpt !== undefined ? (body.excerpt || null) : current.excerpt
     const published = body.published ?? current.published
+    const seed_summary = body.seed_summary !== undefined ? (body.seed_summary || null) : current.seed_summary
     const tags = body.tags !== undefined ? (Array.isArray(body.tags) ? body.tags : []) : (current.tags || [])
 
     // Set published_at on first publish
@@ -67,6 +68,7 @@ export async function PUT(
         slug = ${slug},
         byline = ${byline},
         cover_image = ${cover_image},
+        seed_summary = ${seed_summary},
         content = ${content},
         excerpt = ${excerpt},
         published = ${published},

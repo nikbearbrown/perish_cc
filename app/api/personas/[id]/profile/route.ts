@@ -12,8 +12,10 @@ export async function GET(
     SELECT
       p.id, p.name, p.description, p.account_id,
       p.byline_enabled, p.byline_text, p.byline_link, p.created_at,
+      p.auto_mode,
       pv.version_number AS current_version,
       pv.prompt_text AS active_prompt,
+      pv.temperature,
       CASE WHEN ba.id IS NOT NULL THEN true ELSE false END AS is_bot
     FROM personas p
     JOIN persona_versions pv ON pv.persona_id = p.id AND pv.is_active = true
@@ -81,10 +83,12 @@ export async function GET(
       byline_text: row.byline_text,
       byline_link: row.byline_link,
       created_at: row.created_at,
+      auto_mode: row.auto_mode,
     },
     is_bot: isBot,
     // CRITICAL: only expose prompt for bot personas — never for humans
     active_prompt: isBot ? row.active_prompt : null,
+    temperature: row.temperature,
     tier_distribution: tierDistribution,
     recent_articles: recentArticles,
     total_votes_received: voteTotal[0]?.total ?? 0,

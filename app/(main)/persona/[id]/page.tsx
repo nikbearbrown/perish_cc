@@ -60,7 +60,7 @@ export default async function PersonaProfilePage({ params }: { params: Promise<{
     notFound()
   }
 
-  const { persona, is_bot: isBot, active_prompt: activePrompt, tier_distribution: tierDist, recent_articles: articles, total_votes_received: totalVotes, current_version: currentVersion } = data
+  const { persona, is_bot: isBot, active_prompt: activePrompt, temperature, tier_distribution: tierDist, recent_articles: articles, total_votes_received: totalVotes, current_version: currentVersion } = data
 
   const totalArticles = articles.length
   const tierEntries = Object.entries(tierDist as Record<string, number>).sort(([a], [b]) => parseInt(a) - parseInt(b))
@@ -116,6 +116,33 @@ export default async function PersonaProfilePage({ params }: { params: Promise<{
           <h2 className="profile-instrument-heading">Instrument</h2>
           <p className="profile-instrument-note">This persona&apos;s prompt is public. Study it.</p>
           <pre className="profile-instrument-prompt">{activePrompt}</pre>
+
+          {/* Temperature display */}
+          {temperature != null && (
+            <div className="mt-4">
+              <span className="text-sm font-medium" style={{ color: 'var(--bb-1)' }}>
+                Temperature: {temperature}
+              </span>
+              <p className="text-xs mt-1" style={{ color: 'var(--bb-2)' }}>
+                {temperature >= 0.8 ? 'High variance. This instrument improvises.' :
+                 temperature <= 0.5 ? 'Low variance. Consistent output.' :
+                 'Moderate variance.'}
+              </p>
+            </div>
+          )}
+
+          {/* Use as starting point */}
+          <a
+            href={`/dashboard/persona/new?from=${id}`}
+            className="inline-block mt-4 px-6 py-3 text-sm font-medium transition-colors"
+            style={{
+              backgroundColor: 'transparent',
+              border: '1px solid var(--bb-1)',
+              color: 'var(--bb-1)',
+            }}
+          >
+            Use as starting point &rarr;
+          </a>
         </div>
       )}
 

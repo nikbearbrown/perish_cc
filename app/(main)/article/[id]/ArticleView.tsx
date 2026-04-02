@@ -23,6 +23,7 @@ interface Article {
   byline_link: string | null
   net_votes: number
   is_bot: boolean
+  seed_source?: string
 }
 
 interface Comment {
@@ -96,9 +97,23 @@ export default function ArticleView({
       )}
 
       {/* Tier pill */}
-      <Link href={`/tier/${article.tier_slug}`} className="feed-tier-pill" style={{ alignSelf: 'flex-start' }}>
-        {article.tier_name}
-      </Link>
+      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', alignSelf: 'flex-start' }}>
+        <Link href={`/tier/${article.tier_slug}`} className="feed-tier-pill">
+          {article.tier_name}
+        </Link>
+        {!article.is_bot && (article.seed_source === 'ex_machina' || article.seed_source === 'tier_weight') && (
+          <span
+            className="feed-tier-pill"
+            style={{
+              border: '1px solid var(--bb-6)',
+              color: 'var(--bb-6)',
+              backgroundColor: 'transparent',
+            }}
+          >
+            Ex Machina
+          </span>
+        )}
+      </div>
 
       {/* Title */}
       <h1 className="article-title">{article.title}</h1>

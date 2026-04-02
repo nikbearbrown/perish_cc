@@ -3,11 +3,20 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-export default function PersonaForm() {
+interface PersonaFormProps {
+  prefillPrompt?: string
+  prefillTemperature?: number
+  prefillNotice?: string
+}
+
+export default function PersonaForm({ prefillPrompt, prefillTemperature, prefillNotice }: PersonaFormProps = {}) {
   const router = useRouter()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [promptText, setPromptText] = useState('')
+  const [promptText, setPromptText] = useState(prefillPrompt || '')
+  const [autoMode, setAutoMode] = useState(false)
+  const [temperature, setTemperature] = useState(prefillTemperature ?? 0.7)
+  const [queuedSeed, setQueuedSeed] = useState('')
   const [bylineEnabled, setBylineEnabled] = useState(false)
   const [bylineText, setBylineText] = useState('')
   const [bylineLink, setBylineLink] = useState('')
@@ -29,6 +38,8 @@ export default function PersonaForm() {
           name,
           description,
           prompt_text: promptText,
+          auto_mode: autoMode,
+          temperature,
           byline_enabled: bylineEnabled,
           byline_text: bylineText || undefined,
           byline_link: bylineLink || undefined,
@@ -54,6 +65,11 @@ export default function PersonaForm() {
 
   return (
     <form onSubmit={handleSubmit} className="w-full flex flex-col gap-6">
+      {prefillNotice && (
+        <p className="text-sm italic mb-4" style={{ color: 'var(--bb-2)' }}>
+          Starting from {prefillNotice}&rsquo;s instrument. This is where you begin — not where you stay.
+        </p>
+      )}
       {/* Name */}
       <div className="flex flex-col gap-1.5">
         <label htmlFor="name" className="auth-label">Persona name</label>
@@ -99,6 +115,65 @@ export default function PersonaForm() {
         />
         {fieldErrors.prompt && <p className="auth-error">{fieldErrors.prompt}</p>}
       </div>
+
+      {/* Auto mode toggle */}
+      <div style={{ marginTop: '1.5rem' }}>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={autoMode}
+            onChange={(e) => setAutoMode(e.target.checked)}
+            className="w-4 h-4"
+          />
+          <span className="text-sm font-medium" style={{ color: 'var(--bb-1)' }}>Auto mode</span>
+        </label>
+        <p className="text-xs mt-1" style={{ color: 'var(--bb-2)' }}>
+          Your instrument runs daily without a seed from you. Update your prompt if you don&rsquo;t like the output — there are no mulligans.
+        </p>
+      </div>
+
+      {/* Temperature slider */}
+      <div style={{ marginTop: '1.5rem' }}>
+        <label className="text-sm font-medium" style={{ color: 'var(--bb-1)' }}>
+          Temperature: {temperature.toFixed(2)}
+        </label>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.05"
+          value={temperature}
+          onChange={(e) => setTemperature(parseFloat(e.target.value))}
+          className="w-full mt-1"
+        />
+        <div className="flex justify-between text-xs" style={{ color: 'var(--bb-6)' }}>
+          <span>Consistent</span>
+          <span>Volatile</span>
+        </div>
+        <p className="text-xs mt-1" style={{ color: 'var(--bb-2)' }}>
+          Higher temperature = more variance. The ceiling rises. So does the floor.
+        </p>
+      </div>
+
+      {/* Queue seed (only when auto mode) */}
+      {autoMode && (
+        <div style={{ marginTop: '1.5rem' }}>
+          <label className="text-sm font-medium" style={{ color: 'var(--bb-1)' }}>
+            Next article direction (optional)
+          </label>
+          <textarea
+            rows={3}
+            value={queuedSeed}
+            onChange={(e) => setQueuedSeed(e.target.value)}
+            placeholder="A theme, a provocation, a question. Your instrument uses this instead of a random seed — once."
+            className="w-full mt-1 p-2 border text-sm"
+            style={{ borderColor: 'var(--bb-7)', fontFamily: 'inherit' }}
+          />
+          <p className="text-xs mt-1" style={{ color: 'var(--bb-2)' }}>
+            One slot. Submitting again overwrites the previous.
+          </p>
+        </div>
+      )}
 
       {/* Byline */}
       <div className="flex flex-col gap-3 mt-2">

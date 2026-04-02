@@ -12,6 +12,11 @@ export default function PersonaEditForm({ id }: { id: string }) {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [promptText, setPromptText] = useState('')
+  const [autoMode, setAutoMode] = useState(false)
+  const [temperature, setTemperature] = useState(0.7)
+  const [queuedSeed, setQueuedSeed] = useState('')
+  const [queueInput, setQueueInput] = useState('')
+  const [queueSaving, setQueueSaving] = useState(false)
   const [bylineEnabled, setBylineEnabled] = useState(false)
   const [bylineText, setBylineText] = useState('')
   const [bylineLink, setBylineLink] = useState('')
@@ -36,6 +41,10 @@ export default function PersonaEditForm({ id }: { id: string }) {
         setName(data.name || '')
         setDescription(data.description || '')
         setPromptText(data.prompt_text || '')
+        setAutoMode(data.auto_mode || false)
+        setTemperature(data.temperature ?? 0.7)
+        setQueuedSeed(data.queued_seed || '')
+        setQueueInput(data.queued_seed || '')
         setBylineEnabled(data.byline_enabled || false)
         setBylineText(data.byline_text || '')
         setBylineLink(data.byline_link || '')
@@ -65,6 +74,8 @@ export default function PersonaEditForm({ id }: { id: string }) {
           name,
           description,
           prompt_text: promptText,
+          auto_mode: autoMode,
+          temperature,
           byline_enabled: bylineEnabled,
           byline_text: bylineText || undefined,
           byline_link: bylineLink || undefined,
@@ -150,6 +161,106 @@ export default function PersonaEditForm({ id }: { id: string }) {
         />
         {fieldErrors.prompt && <p className="auth-error">{fieldErrors.prompt}</p>}
       </div>
+
+      {/* Auto mode toggle */}
+      <div style={{ marginTop: '1.5rem' }}>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={autoMode}
+            onChange={(e) => setAutoMode(e.target.checked)}
+            className="w-4 h-4"
+          />
+          <span className="text-sm font-medium" style={{ color: 'var(--bb-1)' }}>Auto mode</span>
+        </label>
+        <p className="text-xs mt-1" style={{ color: 'var(--bb-2)' }}>
+          Your instrument runs daily without a seed from you. Update your prompt if you don&rsquo;t like the output — there are no mulligans.
+        </p>
+      </div>
+
+      {/* Temperature slider */}
+      <div style={{ marginTop: '1.5rem' }}>
+        <label className="text-sm font-medium" style={{ color: 'var(--bb-1)' }}>
+          Temperature: {temperature.toFixed(2)}
+        </label>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.05"
+          value={temperature}
+          onChange={(e) => setTemperature(parseFloat(e.target.value))}
+          className="w-full mt-1"
+        />
+        <div className="flex justify-between text-xs" style={{ color: 'var(--bb-6)' }}>
+          <span>Consistent</span>
+          <span>Volatile</span>
+        </div>
+        <p className="text-xs mt-1" style={{ color: 'var(--bb-2)' }}>
+          Higher temperature = more variance. The ceiling rises. So does the floor.
+        </p>
+      </div>
+
+      {/* Queue seed (only when auto mode) */}
+      {autoMode && (
+        <div style={{ marginTop: '1.5rem' }}>
+          <label className="text-sm font-medium" style={{ color: 'var(--bb-1)' }}>
+            Next article direction (optional)
+          </label>
+          <textarea
+            rows={3}
+            value={queueInput}
+            onChange={(e) => setQueueInput(e.target.value)}
+            placeholder="A theme, a provocation, a question. Your instrument uses this instead of a random seed — once."
+            className="w-full mt-1 p-2 border text-sm"
+            style={{ borderColor: 'var(--bb-7)', fontFamily: 'inherit' }}
+          />
+          <button
+            type="button"
+            onClick={async () => {
+              setQueueSaving(true)
+              try {
+                const res = await fetch(`/api/personas/${id}/queue`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ seed_text: queueInput }),
+                })
+                if (res.ok) setQueuedSeed(queueInput)
+              } catch {}
+              setQueueSaving(false)
+            }}
+            disabled={queueSaving}
+            className="mt-2 px-4 py-2 text-sm"
+            style={{ backgroundColor: 'var(--bb-1)', color: 'var(--bb-8)' }}
+          >
+            {queueSaving ? 'Saving...' : 'Queue it'}
+          </button>
+          {queuedSeed && (
+            <div className="mt-4 text-sm" style={{ color: 'var(--bb-6)' }}>
+              <p>Next run will use: &ldquo;{queuedSeed}&rdquo;</p>
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    const res = await fetch(`/api/personas/${id}/queue`, { method: 'DELETE' })
+                    if (res.ok) {
+                      setQueuedSeed('')
+                      setQueueInput('')
+                    }
+                  } catch {}
+                }}
+                className="text-sm mt-1"
+                style={{ color: 'var(--bb-3)', background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+                Clear &times;
+              </button>
+            </div>
+          )}
+          <p className="text-xs mt-1" style={{ color: 'var(--bb-2)' }}>
+            One slot. Submitting again overwrites the previous.
+          </p>
+        </div>
+      )}
 
       {/* Byline */}
       <div className="flex flex-col gap-3 mt-2">

@@ -1,4 +1,4 @@
-export type LLMMode = 'article' | 'comment' | 'bot_seed'
+export type LLMMode = 'article' | 'comment' | 'bot_seed' | 'auto_seed'
 
 export interface LLMRequest {
   persona_prompt: string
@@ -43,6 +43,8 @@ export function buildMessages(req: LLMRequest): { system: string; user: string }
     case 'comment':
       return { system, user: `Write a brief comment of 1–3 sentences responding to this: ${req.seed}` }
     case 'bot_seed':
+      return { system, user: `Write an article exploring this topic in the context of intelligence research: ${req.seed}` }
+    case 'auto_seed':
       return { system, user: `Write an article exploring this topic in the context of intelligence research: ${req.seed}` }
   }
 }

@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
         b.net_votes,
         a.is_backdated,
         a.hero_image_url,
+        a.seed_source,
         CASE WHEN ba.id IS NOT NULL THEN true ELSE false END AS is_bot
       FROM ${sort === 'week' ? perishSql`best_of_week(${limit})` : perishSql`best_of_month(${limit})`} b
       JOIN tiers t ON t.id = b.tier_id
@@ -54,6 +55,7 @@ export async function GET(req: NextRequest) {
         a.account_id,
         a.is_backdated,
         a.hero_image_url,
+        a.seed_source,
         COALESCE(SUM(CASE v.direction WHEN 'up' THEN 1 WHEN 'down' THEN -1 ELSE 0 END), 0)::int AS net_votes,
         CASE WHEN ba.id IS NOT NULL THEN true ELSE false END AS is_bot
       FROM articles a
@@ -63,7 +65,7 @@ export async function GET(req: NextRequest) {
       LEFT JOIN bot_accounts ba ON ba.account_id = a.account_id
       WHERE a.tier_id = ${tierId}
       GROUP BY a.id, a.title, a.tier_id, t.name, t.slug, a.published_at,
-               p.name, p.id, a.account_id, a.is_backdated, a.hero_image_url, ba.id
+               p.name, p.id, a.account_id, a.is_backdated, a.hero_image_url, a.seed_source, ba.id
       ORDER BY a.published_at DESC
       LIMIT ${limit} OFFSET ${offset}
     `
@@ -84,6 +86,7 @@ export async function GET(req: NextRequest) {
         a.account_id,
         a.is_backdated,
         a.hero_image_url,
+        a.seed_source,
         COALESCE(SUM(CASE v.direction WHEN 'up' THEN 1 WHEN 'down' THEN -1 ELSE 0 END), 0)::int AS net_votes,
         CASE WHEN ba.id IS NOT NULL THEN true ELSE false END AS is_bot
       FROM articles a
@@ -92,7 +95,7 @@ export async function GET(req: NextRequest) {
       LEFT JOIN votes v ON v.article_id = a.id
       LEFT JOIN bot_accounts ba ON ba.account_id = a.account_id
       GROUP BY a.id, a.title, a.tier_id, t.name, t.slug, a.published_at,
-               p.name, p.id, a.account_id, a.is_backdated, a.hero_image_url, ba.id
+               p.name, p.id, a.account_id, a.is_backdated, a.hero_image_url, a.seed_source, ba.id
       ORDER BY a.published_at DESC
       LIMIT ${limit} OFFSET ${offset}
     `

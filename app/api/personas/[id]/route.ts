@@ -61,10 +61,15 @@ export async function PUT(
   }
 
   const body = await req.json()
-  const { prompt_text, byline_enabled, byline_text, byline_link, name, description } = body
+  const { prompt_text, byline_enabled, byline_text, byline_link, name, description, auto_mode, temperature } = body
 
   if (!prompt_text || typeof prompt_text !== 'string' || !prompt_text.trim()) {
     return NextResponse.json({ error: 'prompt_text_required' }, { status: 400 })
+  }
+
+  const resolvedTemperature = typeof temperature === 'number' ? temperature : 0.7
+  if (resolvedTemperature < 0.0 || resolvedTemperature > 1.0) {
+    return NextResponse.json({ error: 'temperature_out_of_range', message: 'Temperature must be between 0.0 and 1.0.' }, { status: 400 })
   }
 
   // Deactivate all existing versions
@@ -80,19 +85,20 @@ export async function PUT(
   const nextVersion = maxRow[0].max_version + 1
 
   await perishSql`
-    INSERT INTO persona_versions (persona_id, prompt_text, version_number, is_active)
-    VALUES (${id}, ${prompt_text.trim()}, ${nextVersion}, true)
+    INSERT INTO persona_versions (persona_id, prompt_text, version_number, is_active, temperature)
+    VALUES (${id}, ${prompt_text.trim()}, ${nextVersion}, true, ${resolvedTemperature})
   `
 
-  // Update metadata if provided
-  if (name || description || byline_enabled !== undefined) {
+  // Update metadata if provided (including auto_mode)
+  if (name || description || byline_enabled !== undefined || auto_mode !== undefined) {
     await perishSql`
       UPDATE personas SET
         name = COALESCE(${name?.trim() || null}, name),
         description = COALESCE(${description?.trim() || null}, description),
         byline_enabled = COALESCE(${byline_enabled ?? null}, byline_enabled),
         byline_text = COALESCE(${byline_text ?? null}, byline_text),
-        byline_link = COALESCE(${byline_link ?? null}, byline_link)
+        byline_link = COALESCE(${byline_link ?? null}, byline_link),
+        auto_mode = COALESCE(${auto_mode ?? null}, auto_mode)
       WHERE id = ${id}
     `
   }

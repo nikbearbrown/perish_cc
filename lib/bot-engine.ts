@@ -9,6 +9,7 @@ export interface BotConfig {
   tier_weights: Record<string, number>
   name: string
   queued_seed?: string | null
+  temperature?: number
 }
 
 const TIER_NAMES: Record<number, string> = {
@@ -30,7 +31,8 @@ export async function getActiveBots(): Promise<BotConfig[]> {
       p.name,
       p.queued_seed,
       pv.id AS persona_version_id,
-      pv.prompt_text AS active_prompt_text
+      pv.prompt_text AS active_prompt_text,
+      pv.temperature
     FROM bot_accounts ba
     JOIN accounts a ON a.id = ba.account_id
     JOIN personas p ON p.account_id = ba.account_id
@@ -46,6 +48,40 @@ export async function getActiveBots(): Promise<BotConfig[]> {
     tier_weights: typeof r.tier_weights === 'string' ? JSON.parse(r.tier_weights) : r.tier_weights,
     name: r.name,
     queued_seed: r.queued_seed || null,
+    temperature: r.temperature ?? 0.7,
+  }))
+}
+
+export async function getAutoModePersonas(): Promise<BotConfig[]> {
+  const rows = await perishSql`
+    SELECT
+      p.account_id,
+      p.id AS persona_id,
+      p.name,
+      p.queued_seed,
+      pv.id AS persona_version_id,
+      pv.prompt_text AS active_prompt_text,
+      pv.temperature
+    FROM personas p
+    JOIN persona_versions pv ON pv.persona_id = p.id AND pv.is_active = true
+    LEFT JOIN bot_accounts ba ON ba.account_id = p.account_id
+    WHERE p.auto_mode = true
+      AND ba.account_id IS NULL
+      AND p.account_id NOT IN (
+        SELECT account_id FROM daily_seed_state
+        WHERE date = CURRENT_DATE AND seeded = true
+      )
+  `
+
+  return rows.map(r => ({
+    account_id: r.account_id,
+    persona_id: r.persona_id,
+    active_prompt_text: r.active_prompt_text,
+    persona_version_id: r.persona_version_id,
+    tier_weights: {},
+    name: r.name,
+    queued_seed: r.queued_seed || null,
+    temperature: r.temperature ?? 0.7,
   }))
 }
 
@@ -111,7 +147,7 @@ function extractTitle(text: string): string {
   return text.slice(0, 80).replace(/\s\S*$/, '') || 'Untitled'
 }
 
-export async function generateBotArticle(bot: BotConfig): Promise<string | null> {
+export async function generateBotArticle(bot: BotConfig): Promise<{ text: string; seedSource: string } | null> {
   const tierId = pickPrimaryTier(bot.tier_weights)
   const { seed, source } = await selectSeed(bot)
 
@@ -122,10 +158,11 @@ export async function generateBotArticle(bot: BotConfig): Promise<string | null>
       mode: 'bot_seed',
       account_id: bot.account_id,
       tier_id: tierId,
+      temperature: bot.temperature,
     })
 
     console.log(`[bot-engine] ${bot.name} seed source: ${source}`)
-    return result.generated_text
+    return { text: result.generated_text, seedSource: source }
   } catch (err) {
     const msg = err instanceof LLMException ? err.code : String(err)
     console.error(`[bot-engine] Article generation failed for ${bot.name}:`, msg)
@@ -137,13 +174,14 @@ export async function publishBotArticle(
   bot: BotConfig,
   generatedText: string,
   tierId: number,
+  seedSource: string = 'tier_weight',
 ): Promise<string | null> {
   const title = extractTitle(generatedText)
 
   try {
     const rows = await perishSql`
-      INSERT INTO articles (account_id, persona_id, persona_version_id, title, body, tier_id, is_backdated)
-      VALUES (${bot.account_id}, ${bot.persona_id}, ${bot.persona_version_id}, ${title}, ${generatedText}, ${tierId}, false)
+      INSERT INTO articles (account_id, persona_id, persona_version_id, title, body, tier_id, is_backdated, seed_source)
+      VALUES (${bot.account_id}, ${bot.persona_id}, ${bot.persona_version_id}, ${title}, ${generatedText}, ${tierId}, false, ${seedSource})
       RETURNING id
     `
 
@@ -300,4 +338,55 @@ export async function allocateBotComments(bot: BotConfig): Promise<void> {
   } catch (err) {
     console.error(`[bot-engine] Comment allocation failed for ${bot.name}:`, err)
   }
+}
+
+export interface PipelineResult {
+  processed: number
+  succeeded: number
+  failed: number
+}
+
+export async function runDailyPipeline(): Promise<PipelineResult> {
+  const bots = await getActiveBots()
+  const autoPersonas = await getAutoModePersonas()
+  const allParticipants = [...bots, ...autoPersonas]
+
+  const result: PipelineResult = { processed: 0, succeeded: 0, failed: 0 }
+
+  for (const participant of allParticipants) {
+    result.processed++
+    try {
+      const isBot = bots.some(b => b.account_id === participant.account_id)
+      const tierId = pickPrimaryTier(participant.tier_weights)
+      const { seed, source } = await selectSeed(participant)
+
+      const generated = await generateContent({
+        persona_prompt: participant.active_prompt_text,
+        seed,
+        mode: isBot ? 'bot_seed' : 'auto_seed',
+        account_id: participant.account_id,
+        tier_id: tierId,
+        temperature: participant.temperature,
+      })
+
+      await publishBotArticle(participant, generated.generated_text, tierId, source)
+
+      // Mark auto-mode players as seeded for today
+      if (!isBot) {
+        await perishSql`
+          INSERT INTO daily_seed_state (account_id, date, seeded)
+          VALUES (${participant.account_id}, CURRENT_DATE, true)
+          ON CONFLICT (account_id, date) DO UPDATE SET seeded = true
+        `
+      }
+
+      console.log(`[bot-engine] ${participant.name} published (source: ${source})`)
+      result.succeeded++
+    } catch (err) {
+      console.error(`[bot-engine] Pipeline failed for ${participant.name}:`, err)
+      result.failed++
+    }
+  }
+
+  return result
 }
