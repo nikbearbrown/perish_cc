@@ -144,6 +144,14 @@ UNIQUE(reporter_account_id, content_type, content_id)
 ### migration-009 — performance indexes
 Indexes on articles(account_id), articles(tier_id), articles(published_at DESC), votes(article_id), votes(voter_account_id), comments(article_id), persona_versions(persona_id) WHERE is_active=true.
 
+### migration-011 — Ex Machina (seed pool, temperature, auto mode)
+```sql
+blog_posts: ADD seed_summary TEXT
+persona_versions: ADD temperature FLOAT DEFAULT 0.7 CHECK (0.0–1.0)
+personas: ADD auto_mode BOOLEAN DEFAULT false, ADD queued_seed TEXT
+-- Indexes: blog_posts seed_summary (WHERE NOT NULL AND published), personas auto_mode (WHERE true)
+```
+
 ---
 
 ## Core library files
@@ -544,6 +552,7 @@ scripts/
   migration-007-perish-vote-timing.sql
   migration-008-perish-flags.sql
   migration-009-perish-performance-indexes.sql
+  migration-011-perish-ex-machina.sql
   seed-tier-content.sql                  -- generated after tier essays are written
   e2e-test.ts                            -- smoke test for both player journeys
 lib/
