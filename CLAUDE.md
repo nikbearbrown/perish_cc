@@ -153,6 +153,11 @@ articles: ADD seed_source TEXT DEFAULT 'manual' CHECK (manual/queued/ex_machina/
 -- Indexes: blog_posts seed_summary (WHERE NOT NULL AND published), personas auto_mode (WHERE true)
 ```
 
+### migration-012 — blog tier tagging
+```sql
+blog_posts: ADD tier_ids INTEGER[] DEFAULT '{}'
+```
+
 ---
 
 ## Core library files
@@ -564,6 +569,7 @@ scripts/
   migration-008-perish-flags.sql
   migration-009-perish-performance-indexes.sql
   migration-011-perish-ex-machina.sql
+  migration-012-perish-blog-tier-ids.sql
   seed-tier-content.sql                  -- generated after tier essays are written
   e2e-test.ts                            -- smoke test for both player journeys
 lib/

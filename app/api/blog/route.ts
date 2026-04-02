@@ -4,7 +4,7 @@ import { sql } from '@/lib/db'
 export async function GET() {
   try {
     const data = await sql`
-      SELECT id, title, subtitle, slug, excerpt, published_at
+      SELECT id, title, subtitle, slug, excerpt, published_at, tier_ids
       FROM blog_posts
       WHERE published = true
       ORDER BY published_at DESC

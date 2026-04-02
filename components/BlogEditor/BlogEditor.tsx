@@ -43,6 +43,7 @@ interface BlogPost {
   tags: string[]
   cover_image?: string
   seed_summary?: string
+  tier_ids?: number[]
   content: string
   published: boolean
 }
@@ -118,6 +119,7 @@ export default function BlogEditor({ post }: { post?: BlogPost }) {
   const [slugEdited, setSlugEdited] = useState(!!post)
   const [coverImage, setCoverImage] = useState(post?.cover_image || '')
   const [seedSummary, setSeedSummary] = useState(post?.seed_summary || '')
+  const [tierIds, setTierIds] = useState<number[]>(post?.tier_ids ?? [])
   const [coverUploading, setCoverUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -237,6 +239,7 @@ export default function BlogEditor({ post }: { post?: BlogPost }) {
       byline: byline.trim() || null,
       tags,
       cover_image: coverImage || null,
+      tier_ids: tierIds,
       seed_summary: seedSummary.trim() || null,
       content,
       excerpt,
@@ -392,6 +395,45 @@ export default function BlogEditor({ post }: { post?: BlogPost }) {
           placeholder="ai, education, source:skepticism-ai"
           className="text-sm h-8"
         />
+      </div>
+
+      {/* Intelligence tier(s) */}
+      <div className="space-y-1">
+        <Label className="text-xs text-muted-foreground">Intelligence tier(s)</Label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {([
+            [1, 'Pattern'],
+            [2, 'Embodied'],
+            [3, 'Social'],
+            [4, 'Metacognitive'],
+            [5, 'Causal'],
+            [6, 'Collective'],
+            [7, 'Wisdom'],
+          ] as const).map(([id, name]) => (
+            <label
+              key={id}
+              className="flex items-center gap-2 cursor-pointer"
+              style={{ fontSize: '0.9rem', color: 'var(--bb-1)' }}
+            >
+              <input
+                type="checkbox"
+                checked={tierIds.includes(id)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setTierIds([...tierIds, id])
+                  } else {
+                    setTierIds(tierIds.filter(t => t !== id))
+                  }
+                }}
+                className="w-4 h-4"
+              />
+              {name}
+            </label>
+          ))}
+        </div>
+        <p className="text-xs" style={{ color: 'var(--bb-2)' }}>
+          Articles seeded from this post inherit these tiers at net +3.
+        </p>
       </div>
 
       {/* Ex Machina seed summary */}
