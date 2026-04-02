@@ -303,7 +303,7 @@ All cron routes validate `Authorization: Bearer ${CRON_SECRET}` header.
 /login                       — Login
 /reset-password              — Password reset
 /admin/login                 — Admin login
-/admin/dashboard             — Admin dashboard (admin_session required)
+/admin/dashboard             — Admin control panel with quick links to player side, admin tools, Neon, Vercel (admin_session required)
 /admin/dashboard/flags       — Flagged content queue
 /admin/dashboard/blog        — Blog management (inherited)
 /admin/dashboard/tools       — Tools management (inherited)

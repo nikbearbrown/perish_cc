@@ -25,7 +25,7 @@ export default function AdminDashboardLayout({
       <div className="flex flex-col gap-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tighter">Admin Dashboard</h1>
-          <nav className="flex gap-4 mt-4 border-b pb-2">
+          <nav className="flex items-center gap-4 mt-4 border-b pb-2">
             {NAV_ITEMS.map((item) => (
               <Link
                 key={item.href}
@@ -40,6 +40,21 @@ export default function AdminDashboardLayout({
                 {item.name}
               </Link>
             ))}
+            <span className="w-px h-5 mx-1" style={{ backgroundColor: 'var(--bb-7)' }} />
+            <Link
+              href="/dashboard"
+              className="text-sm px-3 py-1.5 transition-colors hover:underline"
+              style={{ color: 'var(--bb-2)' }}
+            >
+              Player Dashboard
+            </Link>
+            <Link
+              href="/feed"
+              className="text-sm px-3 py-1.5 transition-colors hover:underline"
+              style={{ color: 'var(--bb-2)' }}
+            >
+              View Feed
+            </Link>
           </nav>
         </div>
         {children}
