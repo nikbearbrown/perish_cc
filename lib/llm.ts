@@ -69,10 +69,8 @@ export async function generateContent(req: LLMRequest): Promise<LLMResponse> {
 
   const body = JSON.stringify({
     model,
-    messages: [
-      { role: 'system', content: system },
-      { role: 'user', content: user },
-    ],
+    system: system,
+    messages: [{ role: 'user', content: user }],
     max_tokens: 2000,
     temperature,
   })
@@ -87,7 +85,8 @@ export async function generateContent(req: LLMRequest): Promise<LLMResponse> {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
         },
         body,
       })
@@ -112,8 +111,8 @@ export async function generateContent(req: LLMRequest): Promise<LLMResponse> {
       }
 
       const data = await res.json()
-      const generatedText = data.choices?.[0]?.message?.content || ''
-      const tokenCount = data.usage?.total_tokens || estimateTokens(generatedText)
+      const generatedText = data.content?.[0]?.text || ''
+      const tokenCount = (data.usage?.input_tokens || 0) + (data.usage?.output_tokens || 0) || estimateTokens(generatedText)
 
       if (latencyMs > 25000) {
         console.warn(JSON.stringify({
