@@ -1,41 +1,35 @@
-# Prerequisites
-*.d
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# testing
+/coverage
 
-# Precompiled Headers
-*.gch
-*.pch
+# next.js
+/.next/
+/out/
 
-# Linker files
-*.ilk
+# production
+/build
 
-# Debugger Files
-*.pdb
+# misc
+.DS_Store
+*.pem
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Fortran module files
-*.mod
-*.smod
+# local env files
+.env*.local
+.env
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+# vercel
+.vercel
 
-# Executables
-*.exe
-*.out
-*.app
-
-# debug information files
-*.dwo
+# typescript
+*.tsbuildinfo
+next-env.d.ts
