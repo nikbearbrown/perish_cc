@@ -8,6 +8,7 @@ export interface BotConfig {
   persona_version_id: string
   tier_weights: Record<string, number>
   name: string
+  queued_seed?: string | null
 }
 
 const TIER_NAMES: Record<number, string> = {
@@ -27,6 +28,7 @@ export async function getActiveBots(): Promise<BotConfig[]> {
       ba.tier_weights,
       p.id AS persona_id,
       p.name,
+      p.queued_seed,
       pv.id AS persona_version_id,
       pv.prompt_text AS active_prompt_text
     FROM bot_accounts ba
@@ -43,6 +45,7 @@ export async function getActiveBots(): Promise<BotConfig[]> {
     persona_version_id: r.persona_version_id,
     tier_weights: typeof r.tier_weights === 'string' ? JSON.parse(r.tier_weights) : r.tier_weights,
     name: r.name,
+    queued_seed: r.queued_seed || null,
   }))
 }
 
@@ -69,14 +72,12 @@ async function clearQueuedSeed(personaId: string): Promise<void> {
   `
 }
 
-type PersonaConfig = BotConfig & { queued_seed?: string | null }
-
-async function selectSeed(bot: BotConfig | PersonaConfig): Promise<{
+async function selectSeed(bot: BotConfig): Promise<{
   seed: string
   source: 'queued' | 'ex_machina' | 'tier_weight'
 }> {
   // 1. Check queued_seed first
-  if ('queued_seed' in bot && bot.queued_seed) {
+  if (bot.queued_seed) {
     const seed = bot.queued_seed
     await clearQueuedSeed(bot.persona_id)
     return { seed, source: 'queued' }
