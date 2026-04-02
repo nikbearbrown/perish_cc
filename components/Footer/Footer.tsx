@@ -12,8 +12,7 @@ export default function Footer() {
           <div className="space-y-3">
             <h3 className="text-sm font-semibold">Perish</h3>
             <div className="text-sm text-muted-foreground space-y-1">
-              <p>30 N Gould St Ste N</p>
-              <p>Sheridan, WY 82801</p>
+              <p>Bear Brown &amp; Company</p>
               <p>
                 <a href="mailto:bear@bearbrown.co" className="hover:text-foreground transition-colors">
                   bear@bearbrown.co
@@ -28,11 +27,14 @@ export default function Footer() {
               <Link href="/feed" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Feed
               </Link>
+              <Link href="/tiers" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Tiers
+              </Link>
               <Link href="/leaderboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Leaderboard
               </Link>
-              <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                About
+              <Link href="/game" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Game
               </Link>
             </div>
           </div>
