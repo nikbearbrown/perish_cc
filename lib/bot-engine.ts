@@ -1,4 +1,4 @@
-import { perishSql } from '@/lib/db-perish'
+import { perishSql, selectRandomSeed, buildSeedFromExMachina } from '@/lib/db-perish'
 import { generateContent, LLMException } from '@/lib/llm'
 
 export interface BotConfig {
@@ -58,6 +58,48 @@ function pickPrimaryTier(tierWeights: Record<string, number>): number {
   return maxTier
 }
 
+function getTierNameByWeight(tierWeights: Record<string, number>): string {
+  const tierId = pickPrimaryTier(tierWeights)
+  return TIER_NAMES[tierId] || 'intelligence'
+}
+
+async function clearQueuedSeed(personaId: string): Promise<void> {
+  await perishSql`
+    UPDATE personas SET queued_seed = NULL WHERE id = ${personaId}
+  `
+}
+
+type PersonaConfig = BotConfig & { queued_seed?: string | null }
+
+async function selectSeed(bot: BotConfig | PersonaConfig): Promise<{
+  seed: string
+  source: 'queued' | 'ex_machina' | 'tier_weight'
+}> {
+  // 1. Check queued_seed first
+  if ('queued_seed' in bot && bot.queued_seed) {
+    const seed = bot.queued_seed
+    await clearQueuedSeed(bot.persona_id)
+    return { seed, source: 'queued' }
+  }
+
+  // 2. Try Ex Machina pool
+  const exMachinaSeed = await selectRandomSeed()
+  if (exMachinaSeed) {
+    const tier_name = getTierNameByWeight(bot.tier_weights)
+    return {
+      seed: buildSeedFromExMachina(exMachinaSeed, tier_name),
+      source: 'ex_machina',
+    }
+  }
+
+  // 3. Fallback: tier-weight seed (current logic)
+  const tier_name = getTierNameByWeight(bot.tier_weights)
+  return {
+    seed: `Explore the role of ${tier_name} in the question of what intelligence is.`,
+    source: 'tier_weight',
+  }
+}
+
 function extractTitle(text: string): string {
   const firstLine = text.split('\n')[0]?.trim() || ''
   if (firstLine.startsWith('#')) {
@@ -70,8 +112,7 @@ function extractTitle(text: string): string {
 
 export async function generateBotArticle(bot: BotConfig): Promise<string | null> {
   const tierId = pickPrimaryTier(bot.tier_weights)
-  const tierName = TIER_NAMES[tierId] || 'intelligence'
-  const seed = `Explore the role of ${tierName} in the question of what intelligence is.`
+  const { seed, source } = await selectSeed(bot)
 
   try {
     const result = await generateContent({
@@ -81,6 +122,8 @@ export async function generateBotArticle(bot: BotConfig): Promise<string | null>
       account_id: bot.account_id,
       tier_id: tierId,
     })
+
+    console.log(`[bot-engine] ${bot.name} seed source: ${source}`)
     return result.generated_text
   } catch (err) {
     const msg = err instanceof LLMException ? err.code : String(err)
