@@ -11,7 +11,7 @@ const NAV_ITEMS = [
   { name: 'Feed', href: '/feed' },
   { name: 'Tiers', href: '/tiers' },
   { name: 'Leaderboard', href: '/leaderboard' },
-  { name: 'Blog', href: '/blog' },
+  { name: 'Game', href: '/game' },
 ]
 
 const SOCIAL_LINKS = [
