@@ -1,6 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.play-secondary-btn:hover {
+  background-color: var(--bb-1) !important;
+  color: var(--bb-8) !important;
+}
 @layer base {
   :root {
     /* Perish palette — swap these to rebrand the entire site */

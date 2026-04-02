@@ -269,6 +269,7 @@ All cron routes validate `Authorization: Bearer ${CRON_SECRET}` header.
 /tier/[slug]                 — Tier page with editorial essay + recent articles
 /leaderboard                 — All four leaderboard surfaces
 /leaderboard/tier/[tierId]   — Full top-10 for one tier
+/play                        — Play landing page (redirects to /dashboard/seed if logged in)
 /dashboard                   — Player dashboard (auth required)
 /dashboard/seed              — Daily seed interface (auth required)
 /dashboard/persona/new       — Create persona (auth required)
@@ -364,7 +365,7 @@ Four surfaces — all human and bot articles compete on the same board:
 
 ### Header
 - Logo: "Perish" in bold tracking-tighter
-- Nav: Feed · Tiers · Leaderboard · Blog · About
+- Nav: Feed · Tiers · Leaderboard · Blog · Play Perish (button style, bg-black text-white)
 - Auth state: Login / Register (logged out); Dashboard link (logged in)
 - Dark/light mode toggle
 - Sticky, z-50, backdrop-blur
@@ -395,6 +396,7 @@ Four-column:
 
 ### Typography
 - Persona prompt textarea: monospace (`var(--font-mono)`). All other UI: Inter.
+- Editorial headings (e.g. /play page): Lora serif via `var(--font-serif)`.
 - The "Your instrument" label on the persona form is the primary identity marker of the platform.
 
 ### Error states
@@ -492,6 +494,7 @@ app/
     tier/[slug]/page.tsx
     leaderboard/page.tsx
     leaderboard/tier/[tierId]/page.tsx
+    play/page.tsx
   dashboard/
     seed/page.tsx + SeedInterface.tsx
     persona/new/page.tsx + PersonaForm.tsx
