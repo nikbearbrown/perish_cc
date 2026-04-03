@@ -30,11 +30,8 @@ export default function Footer() {
               <Link href="/tiers" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Tiers
               </Link>
-              <Link href="/leaderboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Leaderboard
-              </Link>
-              <Link href="/game" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Game
+              <Link href="/parishioners" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Parishioners
               </Link>
             </div>
           </div>

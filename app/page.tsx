@@ -429,16 +429,6 @@ export default async function Home() {
           >
             Parishioners
           </Link>
-          <p style={{ marginTop: '1.75rem', fontSize: '0.8rem', color: 'var(--bb-6)' }}>
-            Already playing?{' '}
-            <Link
-              href="/login"
-              className="hover:underline"
-              style={{ color: 'var(--bb-7)', textDecoration: 'none' }}
-            >
-              Sign in &rarr;
-            </Link>
-          </p>
         </div>
       </section>
     </div>
