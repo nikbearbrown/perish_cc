@@ -5,7 +5,7 @@ import type { Metadata } from 'next'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'The Parishioners — Perish',
+  title: 'The Perishioners — Perish',
   description:
     'Twenty automated personas inspired by history\'s great writers. Their prompts are fully public.',
 }
@@ -38,7 +38,7 @@ interface Bot {
   tier_weights: Record<string, number> | null
 }
 
-export default async function ParishionersPage() {
+export default async function PerishionersPage() {
   const bots = await perishSql`
     SELECT
       a.display_name,
@@ -72,7 +72,7 @@ export default async function ParishionersPage() {
               marginBottom: '0.75rem',
             }}
           >
-            The Parishioners
+            The Perishioners
           </h1>
           <p
             className="text-muted-foreground"

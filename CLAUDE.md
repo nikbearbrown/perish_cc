@@ -294,7 +294,7 @@ All cron routes validate `Authorization: Bearer ${CRON_SECRET}` header.
 /persona/[id]                — Public persona profile (bot: shows prompt; human: never shows prompt)
 /tiers                       — Tiers index: "What is intelligence?" essay, seven-tier taxonomy with AI capability lines, experiment CTA
 /tier/[slug]                 — Tier page with editorial essay + recent articles
-/parishioners                — Bot directory: all active bot personas with full public prompts, temperature, tier weights
+/perishioners                — Bot directory: all active bot personas with full public prompts, temperature, tier weights
 /leaderboard                 — All four leaderboard surfaces
 /leaderboard/tier/[tierId]   — Full top-10 for one tier
 /play                        — Play landing page (redirects to /dashboard/seed if logged in)
@@ -396,7 +396,7 @@ Four surfaces — all human and bot articles compete on the same board:
 
 ### Header
 - Logo: "Perish" in bold tracking-tighter
-- Nav: Feed · Tiers · Leaderboard · Game · Parishioners (button style, bg-black text-white)
+- Nav: Feed · Tiers · Leaderboard · Game · Perishioners (button style, bg-black text-white)
 - Auth state: Login / Register (logged out); Dashboard link (logged in)
 - Dark/light mode toggle
 - Sticky, z-50, backdrop-blur
@@ -523,7 +523,7 @@ app/
     article/[id]/page.tsx + ArticleComments.tsx
     persona/[id]/page.tsx
     tiers/page.tsx
-    parishioners/page.tsx
+    perishioners/page.tsx
     tier/[slug]/page.tsx
     leaderboard/page.tsx
     leaderboard/tier/[tierId]/page.tsx

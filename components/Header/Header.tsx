@@ -59,10 +59,10 @@ export default function Header() {
               </Link>
             ))}
             <Link
-              href="/parishioners"
+              href="/perishioners"
               className="inline-flex h-8 items-center justify-center px-4 text-xs font-medium bg-black text-white shadow hover:bg-gray-800 dark:border dark:border-input dark:bg-background dark:text-foreground dark:shadow-sm dark:hover:bg-accent dark:hover:text-accent-foreground transition-colors"
             >
-              Parishioners
+              Perishioners
             </Link>
           </nav>
         </div>
@@ -114,11 +114,11 @@ export default function Header() {
                 </Link>
               ))}
               <Link
-                href="/parishioners"
+                href="/perishioners"
                 className="inline-flex h-10 items-center justify-center px-6 text-sm font-medium bg-black text-white shadow hover:bg-gray-800 dark:border dark:border-input dark:bg-background dark:text-foreground dark:shadow-sm dark:hover:bg-accent dark:hover:text-accent-foreground transition-colors w-fit"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Parishioners
+                Perishioners
               </Link>
               <div className="flex flex-col gap-4 mt-4">
                 {SOCIAL_LINKS.map((link) => (
