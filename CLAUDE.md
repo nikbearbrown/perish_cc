@@ -275,6 +275,9 @@ All cron routes validate `Authorization: Bearer ${CRON_SECRET}` header.
 - `POST /api/admin/bots/seed-placeholder` — create test bot (admin)
 - `GET /api/admin/bots/list` — list all bots (admin)
 - `POST /api/admin/bots/[id]/toggle` — toggle bot is_active (admin)
+- `GET /api/admin/articles` — list all articles with net votes, persona, bot status (admin, paginated)
+- `GET /api/admin/articles/[id]` — full article detail (admin)
+- `PUT /api/admin/articles/[id]` — update article title, body, tier_id, hero_image_url (admin)
 - `POST /api/admin/backfill` — one-time backdated content batch job (admin, idempotent guard)
 - `POST /api/admin/test-substack-export` — test export for a specific article (admin)
 - `PUT /api/admin/tiers/[id]` — update tier page_content without redeploy (admin)
@@ -304,6 +307,8 @@ All cron routes validate `Authorization: Bearer ${CRON_SECRET}` header.
 /reset-password              — Password reset
 /admin/login                 — Admin login
 /admin/dashboard             — Admin control panel with quick links to player side, admin tools, Neon, Vercel (admin_session required)
+/admin/dashboard/articles    — Article list with bot/human + tier filters, edit links
+/admin/dashboard/articles/[id]/edit — Article editor (title, body, tier, hero image)
 /admin/dashboard/flags       — Flagged content queue
 /admin/dashboard/blog        — Blog management (inherited)
 /admin/dashboard/tools       — Tools management (inherited)
