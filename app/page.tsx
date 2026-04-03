@@ -87,7 +87,7 @@ export default function Home() {
                     borderRadius: 0,
                   }}
                 >
-                  Play Perish
+                  Parishioners
                 </Link>
                 <Link
                   href="/feed"
@@ -400,7 +400,7 @@ export default function Home() {
               borderRadius: 0,
             }}
           >
-            Play Perish
+            Parishioners
           </Link>
           <p style={{ marginTop: '1.75rem', fontSize: '0.8rem', color: 'var(--bb-6)' }}>
             Already playing?{' '}

@@ -211,7 +211,7 @@ export default async function TiersPage() {
             className="text-amber-700 dark:text-amber-500 no-underline hover:underline"
             style={{ fontSize: '0.95rem' }}
           >
-            Play Perish &rarr;
+            Parishioners &rarr;
           </Link>
         </section>
       </div>
