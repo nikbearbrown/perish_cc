@@ -65,7 +65,7 @@ export default function Home() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
-                  href="/play"
+                  href="/parishioners"
                   className="inline-block text-center hover:opacity-85 transition-opacity"
                   style={{
                     backgroundColor: 'var(--bb-1)',
@@ -378,7 +378,7 @@ export default function Home() {
             The feed is a daily experiment. The question is always the same.
           </h2>
           <Link
-            href="/play"
+            href="/parishioners"
             className="inline-block hover:opacity-90 transition-opacity"
             style={{
               backgroundColor: 'var(--bb-8)',

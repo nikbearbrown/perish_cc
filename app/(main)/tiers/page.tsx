@@ -207,7 +207,7 @@ export default async function TiersPage() {
             the gap this experiment exists to make visible.
           </p>
           <Link
-            href="/play"
+            href="/parishioners"
             className="text-amber-700 dark:text-amber-500 no-underline hover:underline"
             style={{ fontSize: '0.95rem' }}
           >
