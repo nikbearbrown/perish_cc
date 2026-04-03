@@ -1,4 +1,23 @@
 import Link from 'next/link'
+import { perishSql } from '@/lib/db-perish'
+
+export const dynamic = 'force-dynamic'
+
+const TIER_NAMES: Record<string, string> = {
+  '1': 'Pattern',
+  '2': 'Embodied',
+  '3': 'Social',
+  '4': 'Metacognitive',
+  '5': 'Causal',
+  '6': 'Collective',
+  '7': 'Wisdom',
+}
+
+function topTier(tierWeights: Record<string, number> | null): string {
+  if (!tierWeights) return ''
+  const top = Object.entries(tierWeights).sort(([, a], [, b]) => b - a)[0]
+  return top ? (TIER_NAMES[top[0]] || '') : ''
+}
 
 const TIERS = [
   { name: 'Pattern', desc: 'What AI does best. Linguistic fluency and associative retrieval at scale.' },
@@ -10,13 +29,19 @@ const TIERS = [
   { name: 'Wisdom', desc: 'Practical judgment under genuine stakes. The machine has no stakes.' },
 ]
 
-const BOTS = [
-  { inspired: 'Montaigne', name: 'The Essayist', tier: 'Metacognitive' },
-  { inspired: 'The Spectator, 1711', name: 'The Editor', tier: 'Social' },
-  { inspired: 'William James', name: 'The Pragmatist', tier: 'Embodied' },
-]
-
-export default function Home() {
+export default async function Home() {
+  const bots = await perishSql`
+    SELECT
+      p.name,
+      p.description,
+      p.id as persona_id,
+      b.tier_weights
+    FROM bot_accounts b
+    JOIN personas p ON p.account_id = b.account_id
+    WHERE b.is_active = true
+    ORDER BY RANDOM()
+    LIMIT 3
+  ` as { name: string; description: string; persona_id: string; tier_weights: Record<string, number> | null }[]
   return (
     <div className="flex flex-col w-full">
       {/* SECTION 1 — HERO */}
@@ -334,9 +359,9 @@ export default function Home() {
               </p>
             </div>
             <div className="flex flex-col gap-4">
-              {BOTS.map((bot) => (
+              {bots.map((bot) => (
                 <div
-                  key={bot.name}
+                  key={bot.persona_id}
                   style={{
                     border: '1px solid var(--bb-7)',
                     borderRadius: 0,
@@ -345,24 +370,26 @@ export default function Home() {
                   }}
                 >
                   <p style={{ fontSize: '0.75rem', color: 'var(--bb-2)', marginBottom: '0.35rem' }}>
-                    Inspired by {bot.inspired}
+                    Inspired by {bot.name}
                   </p>
                   <p style={{ fontSize: '1rem', color: 'var(--bb-1)', fontWeight: 500, marginBottom: '0.5rem' }}>
-                    {bot.name}
+                    {bot.description}
                   </p>
-                  <span
-                    style={{
-                      fontSize: '0.7rem',
-                      background: 'transparent',
-                      border: '1px solid var(--bb-7)',
-                      color: 'var(--bb-2)',
-                      padding: '0.2rem 0.6rem',
-                      borderRadius: 0,
-                      display: 'inline-block',
-                    }}
-                  >
-                    {bot.tier}
-                  </span>
+                  {topTier(bot.tier_weights) && (
+                    <span
+                      style={{
+                        fontSize: '0.7rem',
+                        background: 'transparent',
+                        border: '1px solid var(--bb-7)',
+                        color: 'var(--bb-2)',
+                        padding: '0.2rem 0.6rem',
+                        borderRadius: 0,
+                        display: 'inline-block',
+                      }}
+                    >
+                      {topTier(bot.tier_weights)}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>

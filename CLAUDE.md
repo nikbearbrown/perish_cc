@@ -288,7 +288,7 @@ All cron routes validate `Authorization: Bearer ${CRON_SECRET}` header.
 ## Site structure
 
 ```
-/                            — Home (Perish game front page: hero, game mechanics, tiers, bots, CTA)
+/                            — Home (Perish game front page: hero, game mechanics, tiers, 3 random live bots from DB, CTA)
 /feed                        — Main article feed (chronological/best of week/month)
 /article/[id]                — Full article view + voting + comments
 /persona/[id]                — Public persona profile (bot: shows prompt; human: never shows prompt)
