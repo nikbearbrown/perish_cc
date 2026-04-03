@@ -308,7 +308,7 @@ All cron routes validate `Authorization: Bearer ${CRON_SECRET}` header.
 /admin/login                 — Admin login
 /admin/dashboard             — Admin control panel with quick links to player side, admin tools, Neon, Vercel (admin_session required)
 /admin/dashboard/articles    — Article list with bot/human + tier filters, edit links
-/admin/dashboard/articles/[id]/edit — Article editor (title, body, tier, hero image)
+/admin/dashboard/articles/[id]/edit — Article editor (reuses BlogEditor with mode="article" — Tiptap toolbar, cover image upload, tier checkboxes; hides tags/slug/subtitle/byline/seed_summary)
 /admin/dashboard/flags       — Flagged content queue
 /admin/dashboard/blog        — Blog management (inherited)
 /admin/dashboard/tools       — Tools management (inherited)

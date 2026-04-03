@@ -108,7 +108,8 @@ function ToolbarSep() {
   return <div className="w-px h-5 bg-border mx-0.5" />
 }
 
-export default function BlogEditor({ post }: { post?: BlogPost }) {
+export default function BlogEditor({ post, mode = 'blog' }: { post?: BlogPost; mode?: 'blog' | 'article' }) {
+  const isArticleMode = mode === 'article'
   const router = useRouter()
   const coverRef = useRef<HTMLInputElement>(null)
   const [title, setTitle] = useState(post?.title || '')
@@ -226,6 +227,33 @@ export default function BlogEditor({ post }: { post?: BlogPost }) {
 
     setSaving(true)
     setError('')
+
+    if (isArticleMode) {
+      // Article mode: save to articles API
+      try {
+        const res = await fetch(`/api/admin/articles/${post?.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: title.trim(),
+            body: content,
+            tier_id: tierIds[0] || 1,
+            hero_image_url: coverImage || null,
+          }),
+        })
+        if (!res.ok) {
+          const data = await res.json()
+          throw new Error(data.error || 'Failed to save')
+        }
+        router.push('/admin/dashboard/articles')
+        router.refresh()
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error saving article')
+      } finally {
+        setSaving(false)
+      }
+      return
+    }
 
     const excerpt = extractExcerpt(content)
     const tags = tagsInput
@@ -365,37 +393,41 @@ export default function BlogEditor({ post }: { post?: BlogPost }) {
         className="w-full text-4xl font-bold tracking-tighter bg-transparent border-none outline-none placeholder:text-muted-foreground/40"
       />
 
-      {/* Subtitle */}
-      <input
-        type="text"
-        value={subtitle}
-        onChange={(e) => setSubtitle(e.target.value)}
-        placeholder="Add a subtitle..."
-        className="w-full text-xl bg-transparent border-none outline-none placeholder:text-muted-foreground/40 italic"
-      />
+      {!isArticleMode && (
+        <>
+          {/* Subtitle */}
+          <input
+            type="text"
+            value={subtitle}
+            onChange={(e) => setSubtitle(e.target.value)}
+            placeholder="Add a subtitle..."
+            className="w-full text-xl bg-transparent border-none outline-none placeholder:text-muted-foreground/40 italic"
+          />
 
-      {/* Byline */}
-      <div>
-        <Label className="text-xs text-muted-foreground mb-1 block">Byline</Label>
-        <textarea
-          value={byline}
-          onChange={(e) => setByline(e.target.value)}
-          placeholder="Author byline..."
-          rows={4}
-          className="w-full text-sm border rounded-md p-3 bg-background resize-y focus:outline-none focus:ring-1 focus:ring-ring"
-        />
-      </div>
+          {/* Byline */}
+          <div>
+            <Label className="text-xs text-muted-foreground mb-1 block">Byline</Label>
+            <textarea
+              value={byline}
+              onChange={(e) => setByline(e.target.value)}
+              placeholder="Author byline..."
+              rows={4}
+              className="w-full text-sm border rounded-md p-3 bg-background resize-y focus:outline-none focus:ring-1 focus:ring-ring"
+            />
+          </div>
 
-      {/* Tags */}
-      <div className="space-y-1">
-        <Label className="text-xs text-muted-foreground">Tags (comma-separated)</Label>
-        <Input
-          value={tagsInput}
-          onChange={(e) => setTagsInput(e.target.value)}
-          placeholder="ai, education, source:skepticism-ai"
-          className="text-sm h-8"
-        />
-      </div>
+          {/* Tags */}
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">Tags (comma-separated)</Label>
+            <Input
+              value={tagsInput}
+              onChange={(e) => setTagsInput(e.target.value)}
+              placeholder="ai, education, source:skepticism-ai"
+              className="text-sm h-8"
+            />
+          </div>
+        </>
+      )}
 
       {/* Intelligence tier(s) */}
       <div className="space-y-1">
@@ -436,29 +468,35 @@ export default function BlogEditor({ post }: { post?: BlogPost }) {
         </p>
       </div>
 
-      {/* Ex Machina seed summary */}
-      <div
-        className="space-y-1 rounded-md p-4"
-        style={{ backgroundColor: 'rgba(156, 150, 128, 0.15)', borderLeft: '3px solid var(--bb-4)' }}
-      >
-        <Label className="text-xs text-muted-foreground">Ex Machina seed summary</Label>
-        <textarea
-          value={seedSummary}
-          onChange={(e) => setSeedSummary(e.target.value)}
-          placeholder="The distilled provocation. One to three sentences. This is what the bots read — not the article itself."
-          rows={4}
-          className="w-full text-sm border rounded-md p-3 bg-background resize-y focus:outline-none focus:ring-1 focus:ring-ring"
-        />
-        <p className="text-xs text-muted-foreground">
-          Only posts with a seed summary enter the bot seed pool. Readers never see this field.
-        </p>
-      </div>
+      {!isArticleMode && (
+        <>
+          {/* Ex Machina seed summary */}
+          <div
+            className="space-y-1 rounded-md p-4"
+            style={{ backgroundColor: 'rgba(156, 150, 128, 0.15)', borderLeft: '3px solid var(--bb-4)' }}
+          >
+            <Label className="text-xs text-muted-foreground">Ex Machina seed summary</Label>
+            <textarea
+              value={seedSummary}
+              onChange={(e) => setSeedSummary(e.target.value)}
+              placeholder="The distilled provocation. One to three sentences. This is what the bots read — not the article itself."
+              rows={4}
+              className="w-full text-sm border rounded-md p-3 bg-background resize-y focus:outline-none focus:ring-1 focus:ring-ring"
+            />
+            <p className="text-xs text-muted-foreground">
+              Only posts with a seed summary enter the bot seed pool. Readers never see this field.
+            </p>
+          </div>
+        </>
+      )}
 
-      {/* Slug */}
-      <div className="flex items-center gap-2">
-        <Label className="text-xs text-muted-foreground whitespace-nowrap">
-          /blog/
-        </Label>
+      {!isArticleMode && (
+        <>
+          {/* Slug */}
+          <div className="flex items-center gap-2">
+            <Label className="text-xs text-muted-foreground whitespace-nowrap">
+              /blog/
+            </Label>
         <Input
           value={slug}
           onChange={(e) => {
@@ -469,6 +507,8 @@ export default function BlogEditor({ post }: { post?: BlogPost }) {
           placeholder="post-slug"
         />
       </div>
+        </>
+      )}
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-1 border rounded-md p-1.5 bg-muted/30 sticky top-16 z-10">
@@ -551,25 +591,33 @@ export default function BlogEditor({ post }: { post?: BlogPost }) {
 
       {/* Actions */}
       <div className="flex items-center gap-3 border-t pt-6">
-        <Button
-          variant="outline"
-          onClick={() => save(false)}
-          disabled={saving}
-        >
-          {saving ? 'Saving…' : 'Save Draft'}
-        </Button>
-        <Button onClick={() => save(true)} disabled={saving}>
-          {saving ? 'Publishing…' : post?.published ? 'Update' : 'Publish'}
-        </Button>
-        {post?.published && (
-          <Button
-            variant="outline"
-            onClick={() => save(false)}
-            disabled={saving}
-            className="text-destructive hover:text-destructive"
-          >
-            Unpublish
+        {isArticleMode ? (
+          <Button onClick={() => save(true)} disabled={saving}>
+            {saving ? 'Saving…' : 'Save Changes'}
           </Button>
+        ) : (
+          <>
+            <Button
+              variant="outline"
+              onClick={() => save(false)}
+              disabled={saving}
+            >
+              {saving ? 'Saving…' : 'Save Draft'}
+            </Button>
+            <Button onClick={() => save(true)} disabled={saving}>
+              {saving ? 'Publishing…' : post?.published ? 'Update' : 'Publish'}
+            </Button>
+            {post?.published && (
+              <Button
+                variant="outline"
+                onClick={() => save(false)}
+                disabled={saving}
+                className="text-destructive hover:text-destructive"
+              >
+                Unpublish
+              </Button>
+            )}
+          </>
         )}
       </div>
     </div>
