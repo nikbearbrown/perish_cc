@@ -10,8 +10,6 @@ import ThemeToggle from '@/components/ThemeToggle'
 const NAV_ITEMS = [
   { name: 'Feed', href: '/feed' },
   { name: 'Tiers', href: '/tiers' },
-  { name: 'Leaderboard', href: '/leaderboard' },
-  { name: 'Game', href: '/game' },
 ]
 
 const SOCIAL_LINKS = [

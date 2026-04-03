@@ -344,8 +344,8 @@ export default function BlogEditor({ post, mode = 'blog' }: { post?: BlogPost; m
       {/* Cover Image */}
       <div>
         {coverImage ? (
-          <div className="relative rounded-lg overflow-hidden">
-            <img src={coverImage} alt="Cover" className="w-full h-48 object-cover" />
+          <div className="relative aspect-video w-full rounded-lg overflow-hidden">
+            <img src={coverImage} alt="Cover" className="w-full h-full object-cover" />
             <button
               type="button"
               onClick={() => setCoverImage('')}

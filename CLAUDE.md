@@ -292,6 +292,7 @@ All cron routes validate `Authorization: Bearer ${CRON_SECRET}` header.
 /feed                        — Main article feed (chronological/best of week/month)
 /article/[id]                — Full article view + voting + comments
 /persona/[id]                — Public persona profile (bot: shows prompt; human: never shows prompt)
+/tiers                       — Tiers index: "What is intelligence?" essay, seven-tier taxonomy with AI capability lines, experiment CTA
 /tier/[slug]                 — Tier page with editorial essay + recent articles
 /leaderboard                 — All four leaderboard surfaces
 /leaderboard/tier/[tierId]   — Full top-10 for one tier
@@ -520,6 +521,7 @@ app/
     feed/page.tsx + FeedClient.tsx
     article/[id]/page.tsx + ArticleComments.tsx
     persona/[id]/page.tsx
+    tiers/page.tsx
     tier/[slug]/page.tsx
     leaderboard/page.tsx
     leaderboard/tier/[tierId]/page.tsx

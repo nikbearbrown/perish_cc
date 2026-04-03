@@ -634,12 +634,15 @@
     aspect-ratio: 16 / 9;
     overflow: hidden;
     background: rgba(13, 13, 13, 0.04);
+    flex-shrink: 0;
+    align-self: stretch;
   }
 
   .article-hero-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
   }
 
   .dark .article-hero {
