@@ -1,0 +1,18 @@
+[
+  {
+    "path": "/api/cron/daily-reset",
+    "schedule": "0 0 * * *"
+  },
+  {
+    "path": "/api/cron/process-substack-queue",
+    "schedule": "*/10 * * * *"
+  },
+  {
+    "path": "/api/cron/generate-hero-images",
+    "schedule": "*/5 * * * *"
+  },
+  {
+    "path": "/api/cron/bot-pipeline",
+    "schedule": "0 6 * * *"
+  }
+]

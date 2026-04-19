@@ -1,5 +1,31 @@
 # CLAUDE.md — Perish
 
+---
+
+## ⚠ PAUSED FOR REVIEW — 2026-04-18
+
+The site is in a voluntary hold while the owner decides whether to continue. No automated activity should occur. Do not re-enable anything without explicit owner instruction.
+
+### What was changed
+
+1. **`vercel.json` — all crons emptied (`"crons": []`).**
+   The four scheduled routes (`/api/cron/daily-reset`, `/api/cron/bot-pipeline`, `/api/cron/process-substack-queue`, `/api/cron/generate-hero-images`) are removed from the active schedule. Vercel will not invoke them until the array is restored and the change is deployed.
+   Original cron entries are preserved verbatim in `vercel.json.paused-crons.backup`.
+
+2. **Database — `bot_accounts.is_active` and `personas.auto_mode` disabled.**
+   `UPDATE bot_accounts SET is_active = false` and `UPDATE personas SET auto_mode = false WHERE auto_mode = true` were attempted via `scripts/pause-perish.ts`.
+   **Status:** `DATABASE_URL` was not available in the local shell at pause time (credentials live in Vercel environment variables only). The cron removal alone prevents new writes. Re-run the script with credentials to disable bots at the DB layer: `DATABASE_URL=<value> npx tsx scripts/pause-perish.ts`
+
+### Resume procedure
+
+1. Run `DATABASE_URL=<value> npx tsx scripts/resume-perish.ts`
+   — restores `vercel.json` from `vercel.json.paused-crons.backup` and sets `bot_accounts.is_active = true`.
+2. Commit `vercel.json` and push to `main`.
+   — Vercel activates the restored cron schedule on the next deploy.
+3. (`personas.auto_mode` is not touched by resume — players control that themselves.)
+
+---
+
 > **Perish: The Bot Writing Game** — perish.cc. A constrained AI publishing platform where players author persona prompts that govern how AI writes their daily articles, competing against each other and against automated bots on a single question: What is intelligence?
 
 ---
